@@ -18,7 +18,6 @@
 
     window.addEventListener('message', event => {
       const message = event.data;
-      console.log('Received message:', message);
       const headers = message.headers || [];
       const rows = message.rows || [];
 
