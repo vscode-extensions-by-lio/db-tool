@@ -1,0 +1,79 @@
+{
+  "name": "db-tool",
+  "displayName": "db-tool",
+  "description": "edit db by tables",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dbTool",
+          "title": "dbTool",
+          "icon": "resources/icons.db.1.png"
+        }
+      ]
+    },
+    "views": {
+      "dbTool": [
+        {
+          "id": "dbTool.connections",
+          "name": "Connections"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "dbTool.connections",
+        "contents": "No connections yet.\n[Add Connection](command:dbTool.addConnection)\n[Import Connection](command:dbTool.importConnection)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "dbTool.addConnection",
+        "title": "Add Connection"
+      },
+      {
+        "command": "dbTool.importConnection",
+        "title": "Import Connection"
+      },
+      {
+        "command": "dbTool.addConnectionWindow",
+        "title": "Add Connection (Window)"
+      },
+      {
+        "command": "dbTool.openTable",
+        "title": "Open Table"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.19.11",
+    "@types/pg": "^8.16.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0"
+  },
+  "dependencies": {
+    "pg": "^8.18.0"
+  }
+}

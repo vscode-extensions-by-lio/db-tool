@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{styleUri}}" rel="stylesheet" />
+</head>
+<body>
+  <h3 id="tableName"></h3>
+  <table>
+    <thead id="tableHeader"></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script>
+    // 从主扩展传入数据
+    const vscode = acquireVsCodeApi();
+    window.addEventListener('message', event => {
+      const message = event.data;
+      const headers = message.headers || [];
+      const rows = message.rows || [];
+
+      document.getElementById('tableName').innerText = "Table: " + message.tableName;
+
+      // 渲染表头
+      const headerHtml = headers.map(h => `<th>${h}</th>`).join('');
+      document.getElementById('tableHeader').innerHTML = `<tr>${headerHtml}</tr>`;
+
+      // 渲染表体
+      const bodyHtml = rows.map(row => {
+        return '<tr>' + headers.map(h => `<td>${row[h]}</td>`).join('') + '</tr>';
+      }).join('');
+      document.getElementById('tableBody').innerHTML = bodyHtml;
+    });
+  </script>
+</body>
+</html>

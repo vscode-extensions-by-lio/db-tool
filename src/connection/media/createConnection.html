@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <link href="{{styleUri}}" rel="stylesheet" />
+</head>
+<body>
+  <h2>Create Connection</h2>
+
+  <label>Host:</label><br/>
+  <input id="host" value="localhost"/><br/><br/>
+
+  <label>Port:</label><br/>
+  <input id="port" value="5432"/><br/><br/>
+
+  <label>User:</label><br/>
+  <input id="user" value="postgres"/><br/><br/>
+
+  <label>Password:</label><br/>
+  <input id="password" type="password" value="postgres"/><br/><br/>
+
+  <label>
+    <input type="checkbox" id="remember" checked/>
+    Remember password
+  </label><br/><br/>
+
+  <button onclick="save()">Save</button>
+
+  <script>
+    const vscode = acquireVsCodeApi();
+
+    async function save() {
+
+      vscode.postMessage({
+        command: "saveConnection",
+        host: document.getElementById("host").value,
+        port: document.getElementById("port").value,
+        user: document.getElementById("user").value,
+        password: document.getElementById("password").value,
+        remember: document.getElementById("remember").checked
+      });
+    }
+  </script>
+</body>
+</html>
