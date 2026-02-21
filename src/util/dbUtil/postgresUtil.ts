@@ -52,7 +52,7 @@ export async function getPgTables(client: Client, schemaname: string = "public")
 export async function getTableData(client: Client, schemaname: string = "public", tableName: string) {
   const result = await client.query(`
     SELECT * 
-    FROM ${schemaname}.${tableName}
+    FROM "${schemaname}"."${tableName}"
   `);
 
   return result.rows;

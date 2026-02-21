@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { ConnectionTreeProvider } from "./views/connectionTreeProvider";
-import { openCreateConnectionPanel } from './connection/addConnection';
+import { openCreateConnectionPanel } from './createConnectionView/createConnectionView';
 import { openTableViewPanel } from './tableView/tableView';
 
 // This method is called when your extension is activated
@@ -20,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// 注册命令:创建连接
 	context.subscriptions.push(
 		vscode.commands.registerCommand("dbTool.addConnection", () => {
-			vscode.commands.executeCommand("dbTool.addConnectionWindow");
+			vscode.commands.executeCommand("dbTool.addConnectionView");
 		})
 	);
 
@@ -32,9 +32,9 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
-	// 注册命令:创建连接（打开面板）
+	// 注册命令:打开创建连接面板
 	context.subscriptions.push(
-		vscode.commands.registerCommand("dbTool.addConnectionWindow", () => {
+		vscode.commands.registerCommand("dbTool.addConnectionView", () => {
 			openCreateConnectionPanel(context, provider);
 		})
 	);

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { ConnectionTreeProvider } from "../views/connectionTreeProvider";
 import { getTableData } from "../util/dbUtil/postgresUtil";
 import { Client } from "pg";
+import { getNonce } from "../util/utilFun";
 
 export async function openTableViewPanel(context: vscode.ExtensionContext, client: Client, schema: string, table: string) {
     const panel = vscode.window.createWebviewPanel(
@@ -39,17 +40,26 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
     let html = new TextDecoder("utf-8").decode(htmlBytes);
 
     // 替换占位符
-    html = html.replace("{{styleUri}}", cssUri.toString());
-
+    const nonce = getNonce();
+    html = html.replace(/{{styleUri}}/g, cssUri.toString());
+    html = html.replace(/{{nonce}}/g, nonce);
+    
     panel.webview.html = html;
 
-    const rows = await getTableData(client, schema, table);
-
-    // 发送数据给 Webview 渲染
-    panel.webview.postMessage({
-        tableName: table,
-        headers: Object.keys(rows[0] || {}),
-        rows: rows
-    });
-
+    try {
+        const rows = await getTableData(client, schema, table);
+        console.log('Table data:', rows);
+        panel.webview.postMessage({
+            tableName: table,
+            headers: Object.keys(rows[0] || {}),
+            rows: rows
+        });
+    } catch (err: any) {
+        console.error('Error getting table data:', err);
+        panel.webview.postMessage({
+            tableName: table,
+            headers: ['error'],
+            rows: [{ error: err.message }]
+        });
+    }
 }

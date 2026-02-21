@@ -4,34 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="{{styleUri}}" rel="stylesheet" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' https://file%2B.vscode-resource.vscode-cdn.net; script-src 'self' 'nonce-{{nonce}}';">
 </head>
 <body>
   <h3 id="tableName"></h3>
+  <label>table data</label><br/>
   <table>
     <thead id="tableHeader"></thead>
     <tbody id="tableBody"></tbody>
   </table>
 
-  <script>
-    // 从主扩展传入数据
+  <script nonce="{{nonce}}">
     const vscode = acquireVsCodeApi();
+
     window.addEventListener('message', event => {
       const message = event.data;
+      console.log('Received message:', message);
       const headers = message.headers || [];
       const rows = message.rows || [];
 
       document.getElementById('tableName').innerText = "Table: " + message.tableName;
 
-      // 渲染表头
-      const headerHtml = headers.map(h => `<th>${h}</th>`).join('');
-      document.getElementById('tableHeader').innerHTML = `<tr>${headerHtml}</tr>`;
+      const headerHtml = headers.map(h => '<th>' + h + '</th>').join('');
+      document.getElementById('tableHeader').innerHTML = '<tr>' + headerHtml + '</tr>';
 
-      // 渲染表体
       const bodyHtml = rows.map(row => {
-        return '<tr>' + headers.map(h => `<td>${row[h]}</td>`).join('') + '</tr>';
+        return '<tr>' + headers.map(h => '<td>' + row[h] + '</td>').join('') + '</tr>';
       }).join('');
       document.getElementById('tableBody').innerHTML = bodyHtml;
     });
+
+    vscode.postMessage({ command: 'webviewReady' });
   </script>
+
 </body>
 </html>

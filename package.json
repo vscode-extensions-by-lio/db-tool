@@ -56,7 +56,7 @@
         "title": "Import Connection"
       },
       {
-        "command": "dbTool.addConnectionWindow",
+        "command": "dbTool.addConnectionView",
         "title": "Add Connection (Window)"
       },
       {

@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import { ConnectionTreeProvider } from "../views/connectionTreeProvider";
-import { Connection } from "../dataType";
+import { getNonce } from "../util/utilFun";
 
 export async function openCreateConnectionPanel(context: vscode.ExtensionContext, treeProvider: ConnectionTreeProvider) {
     const panel = vscode.window.createWebviewPanel(
-        "createConnection",
+        "createConnectionView",
         "Create Connection",
         vscode.ViewColumn.One,
         {
@@ -18,18 +18,18 @@ export async function openCreateConnectionPanel(context: vscode.ExtensionContext
     const htmlUri = vscode.Uri.joinPath(
         context.extensionUri,
         "src",
-        "connection",
+        "createConnectionView",
         "media",
-        "createConnection.html"
+        "createConnectionView.html"
     );
 
     const cssUri = panel.webview.asWebviewUri(
         vscode.Uri.joinPath(
             context.extensionUri,
             "src",
-            "connection",
+            "createConnectionView",
             "media",
-            "createConnection.css"
+            "createConnectionView.css"
         )
     );
 
@@ -38,7 +38,10 @@ export async function openCreateConnectionPanel(context: vscode.ExtensionContext
     let html = new TextDecoder("utf-8").decode(htmlBytes);
 
     // 替换占位符
-    html = html.replace("{{styleUri}}", cssUri.toString());
+    const nonce = getNonce();
+    html = html.replace(/{{styleUri}}/g, cssUri.toString());
+    html = html.replace(/{{nonce}}/g, nonce);
+
 
     panel.webview.html = html;
 
