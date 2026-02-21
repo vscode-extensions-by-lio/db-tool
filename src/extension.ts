@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { ConnectionTreeProvider } from "./views/connectionTreeProvider";
 import { openCreateConnectionPanel } from './createConnectionView/createConnectionView';
 import { openTableViewPanel } from './tableView/tableView';
+import { closeConn } from './util/dbUtil/postgresUtil';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -45,6 +46,17 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showInformationMessage("Open table: " + table + " in schema: " + schema);
 
 			openTableViewPanel(context, client, schema, table);
+		})
+	);
+
+	// 注册命令:断开连接
+	context.subscriptions.push(
+		vscode.commands.registerCommand("dbTool.closeConnection", async () => {
+			if (provider.client) {
+				await closeConn(provider.client);
+			}
+			provider.client = null;
+			provider.refresh();
 		})
 	);
 

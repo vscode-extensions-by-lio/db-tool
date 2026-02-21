@@ -3,6 +3,25 @@ import { Client } from "pg";
 import { Connection } from "../../dataType";
 
 
+export async function checkConn(conn: Connection, password: string): Promise<boolean> {
+
+  const client = new Client({
+    host: conn.host,
+    port: Number(conn.port),
+    user: conn.user,
+    password: password,
+    database: conn.database,
+    ssl: false
+  });
+  try {
+    await client.connect();
+    await client.end();
+    return true;
+  } catch (error: any) {
+    vscode.window.showErrorMessage(`Connection failed: ${error.message}`);
+    return false;
+  }
+}
 
 export async function createConn(conn: Connection, context: vscode.ExtensionContext): Promise<Client> {
   const password = await context.secrets.get(
@@ -15,6 +34,7 @@ export async function createConn(conn: Connection, context: vscode.ExtensionCont
     user: conn.user,
     password: password,
     database: conn.database,
+    ssl: false
   });
 
   await client.connect();
@@ -23,7 +43,15 @@ export async function createConn(conn: Connection, context: vscode.ExtensionCont
 
 
 export async function closeConn(client: Client) {
-  await client.end();
+  try {
+    if (client) {
+      await client.end();
+    }else {
+      vscode.window.showWarningMessage("No active connection to close.");
+    }
+  } catch (error) {
+    vscode.window.showErrorMessage(`Failed to close connection: ${error}`);
+  }
 }
 
 

@@ -2,7 +2,7 @@
   "name": "db-tool",
   "displayName": "db-tool",
   "description": "edit db by tables",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "publisher": "hellolio",
   "homepage": "https://github.com/vscode-extensions-by-lio/db-tool",
   "bugs": {
@@ -62,8 +62,25 @@
       {
         "command": "dbTool.openTable",
         "title": "Open Table"
-      }
-    ]
+      },
+      {
+        "command": "dbTool.closeConnection",
+        "title": "Close Connection",
+        "icon": {
+          "light": "resources/delete.png",
+          "dark": "resources/delete.png"
+        }
+    }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "dbTool.closeConnection",
+          "when": "viewItem == closeConnection",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

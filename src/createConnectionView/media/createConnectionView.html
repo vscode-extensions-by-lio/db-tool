@@ -8,6 +8,11 @@
 </head>
 <body>
   <h2>Create Connection</h2>
+  <label>Connection Name:</label><br/>
+  <input id="name" value="My Connection"/><br/><br/>
+
+  <label>DataBase:</label><br/>
+  <input id="database" value="postgres"/><br/><br/>
 
   <label>Host:</label><br/>
   <input id="host" value="localhost"/><br/><br/>
@@ -26,7 +31,9 @@
     Remember password
   </label><br/><br/>
 
-  <button onclick="save()">Save</button>
+  <button onclick="conn()" id="conn">test Connection</button>
+
+  <button onclick="save()" id="save">Save</button>
 
   <script nonce="{{nonce}}">
 
@@ -35,6 +42,8 @@
     async function save() {
       vscode.postMessage({
         command: "saveConnection",
+        name: document.getElementById("name").value,
+        database: document.getElementById("database").value,
         host: document.getElementById("host").value,
         port: document.getElementById("port").value,
         user: document.getElementById("user").value,
@@ -43,8 +52,21 @@
       });
     }
 
+    async function conn() {
+      vscode.postMessage({
+        command: "testConnection",
+        name: document.getElementById("name").value,
+        database: document.getElementById("database").value,
+        host: document.getElementById("host").value,
+        port: document.getElementById("port").value,
+        user: document.getElementById("user").value,
+        password: document.getElementById("password").value
+      });
+    }
+
     // 给按钮绑定事件
-    document.querySelector('button').addEventListener('click', save);
+    document.getElementById("conn").addEventListener('click', conn);
+    document.getElementById("save").addEventListener('click', save);
 
   </script>
 </body>

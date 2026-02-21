@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { createConn, getPgTables, getSchema } from "../util/dbUtil/postgresUtil";
+import { checkConn, createConn, getPgTables, getSchema } from "../util/dbUtil/postgresUtil";
 import { Connection } from "../dataType";
 import { Client } from "pg";
 
@@ -33,19 +33,25 @@ export class ConnectionTreeProvider
   // 返回子节点
   async getChildren(element?: ConnectionItem): Promise<ConnectionItem[]> {
     if (!element) {
-        this.connections = this.context.globalState.get<Connection>("connections", {} as Connection);
-        if (!this.connections) {
+        if (!this.client) {
           return Promise.resolve([]);
         }
         try {
           // 等待异步连接完成
-          this.client = await createConn(this.connections, this.context);
+          // this.connections = this.context.globalState.get<Connection>("connections", {} as Connection);
+          // const password = await this.context.secrets.get(
+          //   `connections-password-${this.connections.id}`
+          // );
+          // const isConnValid = await checkConn(this.connections, password || "");
+          // if (!isConnValid) {
+          //   return Promise.resolve([]);
+          // }
 
           return Promise.resolve([
-            new ConnectionItem(
+            new ConnectionItemDB(
               this.connections.name || "Unnamed Connection",
               "connection",
-              vscode.TreeItemCollapsibleState.Collapsed
+              vscode.TreeItemCollapsibleState.Collapsed,
             ),
           ]);
         } catch (err) {
@@ -124,9 +130,32 @@ class ConnectionItem extends vscode.TreeItem {
     this.tooltip = this.label;
     this.description = "";
     this.contextValue = "connectionItem";
+    this.iconPath = new vscode.ThemeIcon("database");
   }
 }
 
+
+class ConnectionItemDB extends vscode.TreeItem {
+  constructor(
+    public readonly label: string,
+    public readonly type: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly command?: vscode.Command
+  ) {
+    super(label, collapsibleState);
+
+    this.tooltip = this.label;
+    this.description = "";
+    this.contextValue = "closeConnection";
+    this.iconPath = new vscode.ThemeIcon("database");
+    // this.command = {
+    //     command: 'dbTool.closeConnection',
+    //     title: 'Close Connection',
+    //     arguments: [this.client]
+    // };
+
+  }
+}
 
 class ConnectionItemTable extends vscode.TreeItem {
   constructor(
@@ -140,5 +169,6 @@ class ConnectionItemTable extends vscode.TreeItem {
     this.tooltip = this.label;
     this.description = "";
     this.contextValue = "connectionItem";
+    this.iconPath = new vscode.ThemeIcon("database");
   }
 }

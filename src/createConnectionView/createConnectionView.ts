@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { ConnectionTreeProvider } from "../views/connectionTreeProvider";
 import { getNonce } from "../util/utilFun";
+import { checkConn, createConn } from "../util/dbUtil/postgresUtil";
 
 export async function openCreateConnectionPanel(context: vscode.ExtensionContext, treeProvider: ConnectionTreeProvider) {
     const panel = vscode.window.createWebviewPanel(
@@ -46,28 +47,65 @@ export async function openCreateConnectionPanel(context: vscode.ExtensionContext
     panel.webview.html = html;
 
     panel.webview.onDidReceiveMessage(async message => {
-    if (message.command === "saveConnection") {
+        if (message.command === "testConnection") {
 
-        // const id = Date.now().toString();
-        const id = "123456789".toString();
-        const connections = {
-            id: id,
-            name: message.name,
-            host: message.host,
-            port: message.port,
-            user: message.user
-        };
+            // const id = Date.now().toString();
+            const id = "123456789".toString();
+            const connections = {
+                id: id,
+                name: message.name,
+                database: message.database,
+                host: message.host,
+                port: message.port,
+                user: message.user,
+            };
 
-        await context.globalState.update("connections", connections);
+            const isConnValid = await checkConn(connections, message.password);
 
-        await context.secrets.store(
-            `connections-password-${id}`,
-            message.password
-        );
+            if (isConnValid) {
+                vscode.window.showInformationMessage("Connection is successful");
+            } else {
+                vscode.window.showErrorMessage("Connection is invalid");
+            }
+        }
 
-        vscode.window.showInformationMessage("Connection saved");
-        treeProvider.refresh();
-        panel.dispose();
-    }
+        if (message.command === "saveConnection") {
+
+            // const id = Date.now().toString();
+            const id = "123456789".toString();
+            const connections = {
+                id: id,
+                name: message.name,
+                database: message.database,
+                host: message.host,
+                port: message.port,
+                user: message.user,
+            };
+
+            const isConnValid = await checkConn(connections, message.password);
+
+            if (isConnValid) {
+
+                await context.globalState.update("connections", connections);
+
+                await context.secrets.store(
+                    `connections-password-${id}`,
+                    message.password
+                );
+                const client = await createConn(connections, context);
+                treeProvider.client = client;
+                treeProvider.connections = connections;
+
+                vscode.window.showInformationMessage("Connection saved");
+                treeProvider.refresh();
+                panel.dispose();
+
+                vscode.window.showInformationMessage("Connection is successful");
+            } else {
+                vscode.window.showErrorMessage("Connection is invalid");
+                return;
+            }
+
+        }
     });
 }
