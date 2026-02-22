@@ -104,6 +104,7 @@ export async function openCreateConnectionPanel(context: vscode.ExtensionContext
                 treeProvider.connections = connections;
 
                 vscode.window.showInformationMessage("Connection saved");
+                treeProvider.isAtive = true;
                 treeProvider.refresh();
                 panel.dispose();
 

@@ -28,6 +28,7 @@ export class ConnectionTreeProvider
   public client: Client | null = null;
   public selectedSchema: string = "";
   public selectedTable: string = "";
+  public isAtive: boolean = true;
 
 
   // 返回子节点
@@ -35,7 +36,9 @@ export class ConnectionTreeProvider
     if (!element) {
         if (!this.client) {
           // 等待异步连接完成
-          this.connections = this.context.globalState.get<Connection>("connections", {} as Connection);
+          if (this.isAtive) {
+            this.connections = this.context.globalState.get<Connection>("connections", {} as Connection);
+          }
           if (!this.connections || Object.keys(this.connections).length === 0){
             return Promise.resolve([]);
           }
@@ -55,7 +58,9 @@ export class ConnectionTreeProvider
               this.connections.name || "Unnamed Connection",
               "connection",
               vscode.TreeItemCollapsibleState.Collapsed,
-              element
+              element,
+              undefined,
+              this.connections
             ),
           ]);
         } catch (err) {
@@ -180,7 +185,8 @@ class ConnectionItemDB extends vscode.TreeItem {
     public readonly type: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public readonly parent?: ConnectionItem,
-    public readonly command?: vscode.Command
+    public readonly command?: vscode.Command,
+    public readonly connectionData?: Connection
   ) {
     super(label, collapsibleState);
 

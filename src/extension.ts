@@ -50,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
-	// 注册命令:断开连接
+	// 注册命令:编辑连接
 	context.subscriptions.push(
 		vscode.commands.registerCommand("dbTool.editConnection", async () => {
 			openCreateConnectionPanel(context, provider);
@@ -59,12 +59,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// 注册命令:删除连接
 	context.subscriptions.push(
-		vscode.commands.registerCommand("dbTool.deleteConnection", async () => {
-			if (provider.client) {
-				await closeConn(provider.client);
+		vscode.commands.registerCommand("dbTool.deleteConnection", async (treeItem: any) => {
+			const connection = treeItem?.connectionData as Connection;
+			if (!connection || !connection.id) {
+				return;
 			}
-			provider.connections = {} as Connection;
-			provider.client = null;
+			await context.globalState.update("connections", null);
+
+			if (provider.connections && provider.connections.id === connection.id) {
+				if (provider.client) {
+					await closeConn(provider.client);
+				}
+				provider.connections = {} as Connection;
+				provider.client = null;
+			}
 			provider.refresh();
 		})
 	);
@@ -72,9 +80,11 @@ export function activate(context: vscode.ExtensionContext) {
 	// 注册命令:断开连接
 	context.subscriptions.push(
 		vscode.commands.registerCommand("dbTool.closeConnection", async () => {
+			provider.isAtive = false;
 			if (provider.client) {
 				await closeConn(provider.client);
 			}
+			provider.connections = {} as Connection;
 			provider.client = null;
 			provider.refresh();
 		})
