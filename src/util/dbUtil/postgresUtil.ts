@@ -3,7 +3,7 @@ import { Client } from "pg";
 import { Connection } from "../../dataType";
 
 
-export async function checkConn(conn: Connection, password: string): Promise<boolean> {
+export async function checkConn(conn: Connection, password: string) {
 
   const client = new Client({
     host: conn.host,
@@ -13,14 +13,8 @@ export async function checkConn(conn: Connection, password: string): Promise<boo
     database: conn.database,
     ssl: false
   });
-  try {
-    await client.connect();
-    await client.end();
-    return true;
-  } catch (error: any) {
-    vscode.window.showErrorMessage(`Connection failed: ${error.message}`);
-    return false;
-  }
+  await client.connect();
+  await client.end();
 }
 
 export async function createConn(conn: Connection, password: string, context: vscode.ExtensionContext): Promise<Client> {

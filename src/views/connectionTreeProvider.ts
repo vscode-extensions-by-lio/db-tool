@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { checkConn, createConn, getPgTables, getSchema } from "../util/dbUtil/postgresUtil";
+import { createConn, getPgTables, getSchema } from "../util/dbUtil/postgresUtil";
 import { Connection } from "../dataType";
 import { Client } from "pg";
 
@@ -45,11 +45,11 @@ export class ConnectionTreeProvider
           const password = await this.context.secrets.get(
             `connections-password-${this.connections.id}`
           ) || "";
-          const isConnValid = await checkConn(this.connections, password);
-          if (!isConnValid) {
+          try {
+            this.client = await createConn(this.connections, password, this.context);
+          } catch (error) {
             return Promise.resolve([]);
           }
-          this.client = await createConn(this.connections, password, this.context);
 
         }
         try {

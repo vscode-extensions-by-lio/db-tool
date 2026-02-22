@@ -1,44 +1,175 @@
-.form-group {
-  margin-bottom: 16px;
+body {
+  font-family: var(--vscode-font-family);
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  margin: 0;
+  padding: 24px 32px;
 }
 
+/* 取消卡片风格 */
+.card {
+  max-width: 480px;
+}
+
+/* 标题 */
+h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* 分区标题 */
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.6;
+  margin-bottom: 12px;
+  margin-top: 28px;
+}
+
+/* 表单间距 */
+.form-group {
+  margin-bottom: 18px;
+}
+
+/* label */
 label {
+  font-size: 12px;
   display: block;
   margin-bottom: 6px;
+  opacity: 0.85;
+}
+
+/* 输入框 */
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--vscode-input-border);
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  outline: none;
+  box-sizing: border-box;
   font-size: 13px;
 }
 
-input {
-  width: 200px;
-  padding: 8px 10px;
-  border-radius: 6px;
-
-  background-color: rgba(187, 13, 13, 0.12);
-  color: var(--vscode-foreground);
-  border: 1px solid var(--vscode-editorWidget-border);
-
-  outline: none;
-  transition: all 0.15s ease;
-}
-
 input:focus {
-  border: 1px solid var(--vscode-focusBorder);
-  box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+  border-color: var(--vscode-focusBorder);
 }
 
-.checkbox-group {
-  margin-bottom: 20px;
+/* checkbox */
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--vscode-input-border);
+  background-color: #444; /* 未选中灰色 */
+  cursor: pointer;
+  position: relative;
 }
 
-button {
-  padding: 6px 14px;
+input[type="checkbox"]:checked {
+  background-color: var(--vscode-button-background);
+  border-color: var(--vscode-button-background);
+}
+
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--vscode-button-foreground);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.remember {
+  display: flex;
+  align-items: center;   /* 垂直居中 */
+}
+
+.actions {
+  margin-top: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-actions,
+.right-actions {
+  display: flex;
+  gap: 18px;
+}
+
+/* Save - 主按钮 */
+.primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  padding: 6px 18px;
   border-radius: 4px;
   border: none;
   cursor: pointer;
-  background-color: var(--vscode-button-background);
-  color: var(--vscode-button-foreground);
 }
 
-button:hover {
-  background-color: var(--vscode-button-hoverBackground);
+.primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+/* Cancel - 弱按钮 */
+.secondary {
+  background: transparent;
+  color: var(--vscode-descriptionForeground);
+  border: 1px solid var(--vscode-button-border, #555);
+  padding: 6px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.secondary:hover {
+  background: rgba(128,128,128,0.1);
+}
+
+/* Test - 中等强度 */
+.test-btn {
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  padding: 6px 18px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.test-btn:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+/* 状态信息 */
+.status {
+  margin-top: 12px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.status.loading {
+  color: var(--vscode-descriptionForeground);
+}
+
+.status.success {
+  color: #4CAF50;
+}
+
+.status.error {
+  color: #f14c4c;
 }

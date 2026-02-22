@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { ConnectionTreeProvider } from "../views/connectionTreeProvider";
 import { getNonce } from "../util/utilFun";
 import { checkConn, createConn } from "../util/dbUtil/postgresUtil";
+import { Connection } from "../dataType";
 
 export async function openCreateConnectionPanel(context: vscode.ExtensionContext, treeProvider: ConnectionTreeProvider) {
     const panel = vscode.window.createWebviewPanel(
@@ -54,66 +55,93 @@ export async function openCreateConnectionPanel(context: vscode.ExtensionContext
     panel.webview.html = html;
 
     panel.webview.onDidReceiveMessage(async message => {
+        if (message.command === "webviewReady") {
+            const connections = context.globalState.get<Connection>("connections", 
+                {
+                    id: "",
+                    name: "",
+                    host: "",
+                    port: 5432,
+                    user: "",
+                    database: ""
+                }
+            );
+            const password = await context.secrets.get(
+                `connections-password-${connections.id}`
+            ) || "";
+            const remberData = {
+                name: connections.name,
+                database: connections.database,
+                host: connections.host,
+                port: connections.port,
+                user: connections.user,
+                password: password
+            };
+            panel.webview.postMessage({
+                command: "render",
+                data: remberData
+            });
+        }
+        if (message.command === "cancleCreateConnection") {
+            panel.dispose();
+        }
         if (message.command === "testConnection") {
-
             // const id = Date.now().toString();
             const id = "123456789".toString();
             const connections = {
                 id: id,
-                name: message.name,
+                name: message.data.name,
                 database: message.database,
-                host: message.host,
-                port: message.port,
-                user: message.user,
+                host: message.data.host,
+                port: message.data.port,
+                user: message.data.user,
             };
-
-            const isConnValid = await checkConn(connections, message.password);
-
-            if (isConnValid) {
-                vscode.window.showInformationMessage("Connection is successful");
-            } else {
-                vscode.window.showErrorMessage("Connection is invalid");
+            try {
+                await checkConn(connections, message.data.password);
+                panel.webview.postMessage({
+                    command: "testResult",
+                    success: true
+                });
+            } catch (err: any) {
+                panel.webview.postMessage({
+                    command: "testResult",
+                    success: false,
+                    error: err.message
+                });
             }
         }
 
         if (message.command === "saveConnection") {
-
             // const id = Date.now().toString();
             const id = "123456789".toString();
             const connections = {
                 id: id,
-                name: message.name,
-                database: message.database,
-                host: message.host,
-                port: message.port,
-                user: message.user,
+                name: message.data.name,
+                database: message.data.database,
+                host: message.data.host,
+                port: message.data.port,
+                user: message.data.user,
             };
 
-            const isConnValid = await checkConn(connections, message.password);
-
-            if (isConnValid) {
-
-                await context.globalState.update("connections", connections);
-
-                await context.secrets.store(
-                    `connections-password-${id}`,
-                    message.password
-                );
-                const client = await createConn(connections, message.password, context);
-                treeProvider.client = client;
-                treeProvider.connections = connections;
-
-                vscode.window.showInformationMessage("Connection saved");
-                treeProvider.isAtive = true;
-                treeProvider.refresh();
-                panel.dispose();
-
-                vscode.window.showInformationMessage("Connection is successful");
-            } else {
-                vscode.window.showErrorMessage("Connection is invalid");
+            try {
+                await checkConn(connections, message.data.password);
+            } catch (error: any) {
+                vscode.window.showErrorMessage("Connection is invalid:" + error.message);
                 return;
             }
 
+            await context.globalState.update("connections", connections);
+            await context.secrets.store(
+                `connections-password-${id}`,
+                message.data.password
+            );
+            const client = await createConn(connections, message.data.password, context);
+            treeProvider.client = client;
+            treeProvider.connections = connections;
+
+            treeProvider.isAtive = true;
+            treeProvider.refresh();
+            panel.dispose();
         }
     });
 }
