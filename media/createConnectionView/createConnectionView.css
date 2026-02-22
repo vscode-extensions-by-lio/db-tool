@@ -66,6 +66,12 @@ input:focus {
   align-items: center;
   gap: 6px;
   font-size: 12px;
+  margin-bottom: 18px;
+}
+.checkbox label {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
 }
 input[type="checkbox"] {
   appearance: none;
@@ -94,10 +100,6 @@ input[type="checkbox"]:checked::after {
   border: solid var(--vscode-button-foreground);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
-}
-.remember {
-  display: flex;
-  align-items: center;   /* 垂直居中 */
 }
 
 .actions {
