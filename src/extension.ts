@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { ConnectionTreeProvider } from "./views/connectionTreeProvider";
 import { openCreateConnectionPanel } from './createConnectionView/createConnectionView';
 import { openTableViewPanel } from './tableView/tableView';
-import { closeConn } from './util/dbUtil/postgresUtil';
+import { closeConn, createConn } from './util/dbUtil/postgresUtil';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -51,6 +51,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// 注册命令:断开连接
 	context.subscriptions.push(
+		vscode.commands.registerCommand("dbTool.editConnection", async () => {
+			openCreateConnectionPanel(context, provider);
+		})
+	);
+
+	// 注册命令:断开连接
+	context.subscriptions.push(
 		vscode.commands.registerCommand("dbTool.closeConnection", async () => {
 			if (provider.client) {
 				await closeConn(provider.client);
@@ -60,6 +67,17 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	// 注册命令:刷新连接
+	context.subscriptions.push(
+		vscode.commands.registerCommand("dbTool.refreshConnection", async () => {
+			if (provider.client) {
+				await closeConn(provider.client);
+			}
+			
+			provider.client = await createConn(provider.connections, context);
+			provider.refresh();
+		})
+	);
 }
 
 // This method is called when your extension is deactivated

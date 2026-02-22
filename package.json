@@ -64,20 +64,59 @@
         "title": "Open Table"
       },
       {
+        "command": "dbTool.editConnection",
+        "title": "Edit Connection",
+        "icon": {
+          "light": "resources/edit.png",
+          "dark": "resources/edit.png"
+        }
+      },
+      {
         "command": "dbTool.closeConnection",
         "title": "Close Connection",
         "icon": {
           "light": "resources/delete.png",
           "dark": "resources/delete.png"
         }
-    }
+      },
+      {
+        "command": "dbTool.refreshConnection",
+        "title": "Close Connection",
+        "icon": {
+          "light": "resources/refresh.png",
+          "dark": "resources/refresh.png"
+        }
+      },
+      {
+        "command": "dbTool.filterTables",
+        "title": "Close Connection",
+        "icon": {
+          "light": "resources/filter.png",
+          "dark": "resources/filter.png"
+        }
+      }
     ],
     "menus": {
       "view/item/context": [
         {
-          "command": "dbTool.closeConnection",
-          "when": "viewItem == closeConnection",
+          "command": "dbTool.editConnection",
+          "when": "viewItem == ConnectionItemDB",
           "group": "inline"
+        },
+        {
+          "command": "dbTool.closeConnection",
+          "when": "viewItem == ConnectionItemDB",
+          "group": "inline"
+        },
+        {
+          "command": "dbTool.refreshConnection",
+          "when": "viewItem == ConnectionItemDB",
+          "group": "inline"
+        },
+        {
+          "command": "dbTool.filterTables",
+          "when": "viewItem == ConnectionItemTableList",
+          "group": "navigation"
         }
       ]
     }

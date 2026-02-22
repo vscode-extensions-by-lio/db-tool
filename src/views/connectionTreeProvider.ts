@@ -52,6 +52,7 @@ export class ConnectionTreeProvider
               this.connections.name || "Unnamed Connection",
               "connection",
               vscode.TreeItemCollapsibleState.Collapsed,
+              element
             ),
           ]);
         } catch (err) {
@@ -62,22 +63,26 @@ export class ConnectionTreeProvider
     }
 
     if (element.type === "connection" && this.client) {
-      return Promise.resolve([
-        new ConnectionItem(
-          "Postgres",
-          "db",
-          vscode.TreeItemCollapsibleState.Collapsed
-        ),
-      ]);
+      const dbs = [this.connections.database];
+      // const dbs = await getSchema(this.client);
+      return Promise.resolve(
+        dbs.map(db => new ConnectionItemSchema(
+          db,
+          "dbLabel",
+          vscode.TreeItemCollapsibleState.Collapsed,
+          element
+        ))
+      );
     }
 
 
-    if (element.type === "db" && this.client) {
+    if (element.type === "dbLabel" && this.client) {
       return Promise.resolve([
-        new ConnectionItem(
+        new ConnectionItemSchemaList(
           "Schemas",
           "schemasLabel",
-          vscode.TreeItemCollapsibleState.Collapsed
+          vscode.TreeItemCollapsibleState.Collapsed,
+          element
         ),
       ]);
     }
@@ -85,25 +90,38 @@ export class ConnectionTreeProvider
     if (element.type === "schemasLabel" && this.client) {
       const schemas = await getSchema(this.client);
       return Promise.resolve(
-        schemas.map(schema => new ConnectionItem(
+        schemas.map(schema => new ConnectionItemSchema(
           schema,
-          "schema",
-          vscode.TreeItemCollapsibleState.Collapsed
+          "schemaLabel",
+          vscode.TreeItemCollapsibleState.Collapsed,
+          element
         ))
       );
     };
 
-    if (element.type === "schema" && this.client) {
+    if (element.type === "schemaLabel" && this.client) {
+      return Promise.resolve([
+        new ConnectionItemTableList(
+          "Tables",
+          "tablesLabel",
+          vscode.TreeItemCollapsibleState.Collapsed,
+          element
+        ),
+      ]);
+    }
+
+    if (element.type === "tablesLabel" && this.client) {
       const tables = await getPgTables(this.client);
       return Promise.resolve(
         tables.map(table => new ConnectionItemTable(
           table,
           "table",
           vscode.TreeItemCollapsibleState.None,
+          element,
           {
             command: "dbTool.openTable",
             title: "Open Table",
-            arguments: [this.client, element.label, table] // 会传给命令
+            arguments: [this.client, element.parent?.label, table]
           }
         ))
       );
@@ -119,17 +137,35 @@ export class ConnectionTreeProvider
   }
 }
 
+
 class ConnectionItem extends vscode.TreeItem {
   constructor(
     public readonly label: string,
     public readonly type: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly parent?: ConnectionItem
   ) {
     super(label, collapsibleState);
 
     this.tooltip = this.label;
     this.description = "";
-    this.contextValue = "connectionItem";
+    this.contextValue = "ConnectionItem";
+    this.iconPath = new vscode.ThemeIcon("database");
+  }
+}
+
+class ConnectionItemConn extends vscode.TreeItem {
+  constructor(
+    public readonly label: string,
+    public readonly type: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly parent?: ConnectionItem,
+  ) {
+    super(label, collapsibleState);
+
+    this.tooltip = this.label;
+    this.description = "";
+    this.contextValue = "ConnectionItemConn";
     this.iconPath = new vscode.ThemeIcon("database");
   }
 }
@@ -140,20 +176,66 @@ class ConnectionItemDB extends vscode.TreeItem {
     public readonly label: string,
     public readonly type: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly parent?: ConnectionItem,
     public readonly command?: vscode.Command
   ) {
     super(label, collapsibleState);
 
     this.tooltip = this.label;
     this.description = "";
-    this.contextValue = "closeConnection";
+    this.contextValue = "ConnectionItemDB";
     this.iconPath = new vscode.ThemeIcon("database");
-    // this.command = {
-    //     command: 'dbTool.closeConnection',
-    //     title: 'Close Connection',
-    //     arguments: [this.client]
-    // };
 
+  }
+}
+
+class ConnectionItemSchemaList extends vscode.TreeItem {
+  constructor(
+    public readonly label: string,
+    public readonly type: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly parent?: ConnectionItem,
+  ) {
+    super(label, collapsibleState);
+
+    this.tooltip = this.label;
+    this.description = "";
+    this.contextValue = "ConnectionItemSchemaList";
+    this.iconPath = new vscode.ThemeIcon("list-tree");
+  }
+}
+
+class ConnectionItemSchema extends vscode.TreeItem {
+  constructor(
+    public readonly label: string,
+    public readonly type: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly parent?: ConnectionItem,
+    public readonly command?: vscode.Command
+  ) {
+    super(label, collapsibleState);
+
+    this.tooltip = this.label;
+    this.description = "";
+    this.contextValue = "ConnectionItemSchema";
+    this.iconPath = new vscode.ThemeIcon("symbol-namespace");
+  }
+}
+
+class ConnectionItemTableList extends vscode.TreeItem {
+  constructor(
+    public readonly label: string,
+    public readonly type: string,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly parent?: ConnectionItem,
+    public readonly command?: vscode.Command
+  ) {
+    super(label, collapsibleState);
+
+    this.tooltip = this.label;
+    this.description = "";
+    this.contextValue = "ConnectionItemTableList";
+    this.iconPath = new vscode.ThemeIcon("list-tree");
   }
 }
 
@@ -162,13 +244,14 @@ class ConnectionItemTable extends vscode.TreeItem {
     public readonly label: string,
     public readonly type: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly parent?: ConnectionItem,
     public readonly command?: vscode.Command
   ) {
     super(label, collapsibleState);
 
     this.tooltip = this.label;
     this.description = "";
-    this.contextValue = "connectionItem";
-    this.iconPath = new vscode.ThemeIcon("database");
+    this.contextValue = "ConnectionItemTable";
+    this.iconPath = new vscode.ThemeIcon("table");
   }
 }

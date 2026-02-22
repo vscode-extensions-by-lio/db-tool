@@ -54,6 +54,14 @@ export async function closeConn(client: Client) {
   }
 }
 
+export async function getDataBases(client: Client) {
+  const result = await client.query(`
+    SELECT datname FROM pg_database;
+  `);
+
+  const dbs = result.rows.map(row => row.datname);
+  return dbs;
+}
 
 export async function getSchema(client: Client) {
   const result = await client.query(`
