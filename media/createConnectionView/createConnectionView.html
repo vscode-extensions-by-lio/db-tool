@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{styleUri}}" rel="stylesheet" />
+  <meta http-equiv="Content-Security-Policy"
+      content="
+        default-src 'none';
+        img-src {{webview.cspSource}} https:;
+        style-src {{webview.cspSource}} 'unsafe-inline';
+        script-src 'nonce-{{nonce}}';
+        font-src {{webview.cspSource}} data:;
+      ">
+</head>
+<body>
+  <h2>Create Connection</h2>
+  <label>Connection Name:</label><br/>
+  <input id="name" value="My Connection"/><br/><br/>
+
+  <label>DataBase:</label><br/>
+  <input id="database" value="postgres"/><br/><br/>
+
+  <label>Host:</label><br/>
+  <input id="host" value="localhost"/><br/><br/>
+
+  <label>Port:</label><br/>
+  <input id="port" value="5432"/><br/><br/>
+
+  <label>User:</label><br/>
+  <input id="user" value="postgres"/><br/><br/>
+
+  <label>Password:</label><br/>
+  <input id="password" type="password" value="postgres"/><br/><br/>
+
+  <label>
+    <input type="checkbox" id="remember" checked/>
+    Remember password
+  </label><br/><br/>
+
+  <button onclick="conn()" id="conn">test Connection</button>
+
+  <button onclick="save()" id="save">Save</button>
+
+
+  <script src="{{scriptUri}}" nonce="{{nonce}}"></script>
+
+</body>
+</html>

@@ -34,19 +34,22 @@ export class ConnectionTreeProvider
   async getChildren(element?: ConnectionItem): Promise<ConnectionItem[]> {
     if (!element) {
         if (!this.client) {
-          return Promise.resolve([]);
+          // 等待异步连接完成
+          this.connections = this.context.globalState.get<Connection>("connections", {} as Connection);
+          if (!this.connections || Object.keys(this.connections).length === 0){
+            return Promise.resolve([]);
+          }
+          const password = await this.context.secrets.get(
+            `connections-password-${this.connections.id}`
+          ) || "";
+          const isConnValid = await checkConn(this.connections, password);
+          if (!isConnValid) {
+            return Promise.resolve([]);
+          }
+          this.client = await createConn(this.connections, password, this.context);
+
         }
         try {
-          // 等待异步连接完成
-          // this.connections = this.context.globalState.get<Connection>("connections", {} as Connection);
-          // const password = await this.context.secrets.get(
-          //   `connections-password-${this.connections.id}`
-          // );
-          // const isConnValid = await checkConn(this.connections, password || "");
-          // if (!isConnValid) {
-          //   return Promise.resolve([]);
-          // }
-
           return Promise.resolve([
             new ConnectionItemDB(
               this.connections.name || "Unnamed Connection",

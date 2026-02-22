@@ -15,22 +15,27 @@ export async function openCreateConnectionPanel(context: vscode.ExtensionContext
         ]
         }
     );
+    const mediaPath = vscode.Uri.joinPath(context.extensionUri, "media");
 
     const htmlUri = vscode.Uri.joinPath(
-        context.extensionUri,
-        "src",
+        mediaPath,
         "createConnectionView",
-        "media",
         "createConnectionView.html"
     );
 
     const cssUri = panel.webview.asWebviewUri(
         vscode.Uri.joinPath(
-            context.extensionUri,
-            "src",
+            mediaPath,
             "createConnectionView",
-            "media",
             "createConnectionView.css"
+        )
+    );
+
+    const scriptUri = panel.webview.asWebviewUri(
+        vscode.Uri.joinPath(
+            mediaPath,
+            "createConnectionView",
+            "createConnectionView.js"
         )
     );
 
@@ -41,8 +46,10 @@ export async function openCreateConnectionPanel(context: vscode.ExtensionContext
     // 替换占位符
     const nonce = getNonce();
     html = html.replace(/{{styleUri}}/g, cssUri.toString());
+    html = html.replace(/{{scriptUri}}/g, scriptUri.toString());
     html = html.replace(/{{nonce}}/g, nonce);
 
+    html = html.replace(/{{webview.cspSource}}/g, panel.webview.cspSource);
 
     panel.webview.html = html;
 
@@ -92,7 +99,7 @@ export async function openCreateConnectionPanel(context: vscode.ExtensionContext
                     `connections-password-${id}`,
                     message.password
                 );
-                const client = await createConn(connections, context);
+                const client = await createConn(connections, message.password, context);
                 treeProvider.client = client;
                 treeProvider.connections = connections;
 

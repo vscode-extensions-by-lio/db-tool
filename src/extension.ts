@@ -5,6 +5,7 @@ import { ConnectionTreeProvider } from "./views/connectionTreeProvider";
 import { openCreateConnectionPanel } from './createConnectionView/createConnectionView';
 import { openTableViewPanel } from './tableView/tableView';
 import { closeConn, createConn } from './util/dbUtil/postgresUtil';
+import { Connection } from './dataType';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -56,6 +57,18 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	// 注册命令:删除连接
+	context.subscriptions.push(
+		vscode.commands.registerCommand("dbTool.deleteConnection", async () => {
+			if (provider.client) {
+				await closeConn(provider.client);
+			}
+			provider.connections = {} as Connection;
+			provider.client = null;
+			provider.refresh();
+		})
+	);
+
 	// 注册命令:断开连接
 	context.subscriptions.push(
 		vscode.commands.registerCommand("dbTool.closeConnection", async () => {
@@ -73,8 +86,10 @@ export function activate(context: vscode.ExtensionContext) {
 			if (provider.client) {
 				await closeConn(provider.client);
 			}
-			
-			provider.client = await createConn(provider.connections, context);
+			const password = await context.secrets.get(
+				`connections-password-${provider.connections.id}`
+			) || "";
+			provider.client = await createConn(provider.connections, password, context);
 			provider.refresh();
 		})
 	);

@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+  font-family: var(--vscode-font-family);
+}
+
+.toolbar {
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+#myGrid {
+  height: 80vh;
+  width: 100%;
+}

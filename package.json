@@ -72,11 +72,19 @@
         }
       },
       {
-        "command": "dbTool.closeConnection",
-        "title": "Close Connection",
+        "command": "dbTool.deleteConnection",
+        "title": "Delete Connection",
         "icon": {
           "light": "resources/delete.png",
           "dark": "resources/delete.png"
+        }
+      },
+      {
+        "command": "dbTool.closeConnection",
+        "title": "Close Connection",
+        "icon": {
+          "light": "resources/close.png",
+          "dark": "resources/close.png"
         }
       },
       {
@@ -100,6 +108,11 @@
       "view/item/context": [
         {
           "command": "dbTool.editConnection",
+          "when": "viewItem == ConnectionItemDB",
+          "group": "inline"
+        },
+        {
+          "command": "dbTool.deleteConnection",
           "when": "viewItem == ConnectionItemDB",
           "group": "inline"
         },
@@ -141,6 +154,7 @@
     "typescript-eslint": "^8.54.0"
   },
   "dependencies": {
+    "ag-grid-community": "^35.1.0",
     "pg": "^8.18.0"
   }
 }

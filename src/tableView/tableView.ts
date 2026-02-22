@@ -17,21 +17,51 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
         }
     );
 
+    const mediaPath = vscode.Uri.joinPath(context.extensionUri, "media");
+
     const htmlUri = vscode.Uri.joinPath(
-        context.extensionUri,
-        "src",
+        mediaPath,
         "tableView",
-        "media",
         "tableView.html"
     );
 
     const cssUri = panel.webview.asWebviewUri(
         vscode.Uri.joinPath(
-            context.extensionUri,
-            "src",
+            mediaPath,
             "tableView",
-            "media",
             "tableView.css"
+        )
+    );
+
+    const scriptUri = panel.webview.asWebviewUri(
+        vscode.Uri.joinPath(
+            mediaPath,
+            "tableView",
+            "tableView.js"
+        )
+    );
+
+    const agGridJsUri = panel.webview.asWebviewUri(
+        vscode.Uri.joinPath(
+            mediaPath,
+            "tableView",
+            "ag-grid-community.min.js"
+        )
+    );
+
+    const agGridCssUri = panel.webview.asWebviewUri(
+        vscode.Uri.joinPath(
+            mediaPath,
+            "tableView",
+            "ag-theme-alpine.min.css"
+        )
+    );
+
+    const agThemeUri = panel.webview.asWebviewUri(
+        vscode.Uri.joinPath(
+            mediaPath,
+            "tableView",
+            "ag-theme-alpine.min.css"
         )
     );
 
@@ -42,24 +72,27 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
     // 替换占位符
     const nonce = getNonce();
     html = html.replace(/{{styleUri}}/g, cssUri.toString());
-    html = html.replace(/{{nonce}}/g, nonce);
+    html = html.replace(/{{scriptUri}}/g, scriptUri.toString());
     
+    html = html.replace(/{{agGridCssUri}}/g, agGridCssUri.toString());
+    html = html.replace(/{{agThemeUri}}/g, agThemeUri.toString());
+    html = html.replace(/{{agGridJsUri}}/g, agGridJsUri.toString());
+
+    html = html.replace(/{{nonce}}/g, nonce);
+    html = html.replace(/{{webview.cspSource}}/g, panel.webview.cspSource);
+
     panel.webview.html = html;
 
-    try {
-        const rows = await getTableData(client, schema, table);
-        console.log('Table data:', rows);
-        panel.webview.postMessage({
-            tableName: table,
-            headers: Object.keys(rows[0] || {}),
-            rows: rows
-        });
-    } catch (err: any) {
-        console.error('Error getting table data:', err);
-        panel.webview.postMessage({
-            tableName: table,
-            headers: ['error'],
-            rows: [{ error: err.message }]
-        });
-    }
+    panel.webview.onDidReceiveMessage(async (msg) => {
+        if (msg.command === "webviewReady") {
+            const rows = await getTableData(client, schema, table);
+            panel.webview.postMessage({
+                command: "render",
+                tableName: table,
+                headers: Object.keys(rows[0] || {}),
+                rows: rows
+            });
+        }
+    });
+
 }

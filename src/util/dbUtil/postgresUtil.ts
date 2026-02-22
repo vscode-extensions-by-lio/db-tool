@@ -23,10 +23,7 @@ export async function checkConn(conn: Connection, password: string): Promise<boo
   }
 }
 
-export async function createConn(conn: Connection, context: vscode.ExtensionContext): Promise<Client> {
-  const password = await context.secrets.get(
-    `connections-password-${conn.id}`
-  );
+export async function createConn(conn: Connection, password: string, context: vscode.ExtensionContext): Promise<Client> {
 
   const client = new Client({
     host: conn.host,
