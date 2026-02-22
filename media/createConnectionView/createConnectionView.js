@@ -14,8 +14,7 @@ async function save() {
         host: document.getElementById("host").value,
         port: document.getElementById("port").value,
         user: document.getElementById("user").value,
-        password: document.getElementById("password").value,
-        remember: document.getElementById("remember").checked
+        password: document.getElementById("password").value
     };
     vscode.postMessage({
         command: "saveConnection",
@@ -60,7 +59,6 @@ window.addEventListener("message", event => {
         document.getElementById("port").value = data.port || "";
         document.getElementById("user").value = data.user || "";
         document.getElementById("password").value = data.password || "";
-        document.getElementById("remember").checked = !!data.remember;
     }
     if (message.command === "testResult") {
         if (message.success) {

@@ -8,12 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const gridDiv = document.querySelector("#myGrid");
 
   const gridOptions = {
+    cellSelection: true,
+    enableRangeSelection: true,
     defaultColDef: {
       editable: true,
       sortable: true,
       filter: true,
       resizable: true,
     },
+
     rowSelection: {
       mode: "multiRow"
     },
