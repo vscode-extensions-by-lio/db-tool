@@ -109,7 +109,7 @@ export async function updateTableData(client: any, schemaname: string = "public"
       values.push(item.ctid);
 
       const sql = `
-        UPDATE ${tableName}
+        UPDATE ${schemaname}.${tableName}
         SET ${setClause}
         WHERE ctid = $${values.length}
       `;
@@ -119,6 +119,50 @@ export async function updateTableData(client: any, schemaname: string = "public"
 
     await client.query('COMMIT');
 
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  }
+}
+
+// 删除函数
+export async function deleteTableData(client: any, schemaname: string = "public", tableName: string, list: { ctid: string }[]) {
+  if (!list.length) return;
+
+  await client.query('BEGIN');
+
+  try {
+    for (const item of list) {
+      const sql = `DELETE FROM ${schemaname}.${tableName} WHERE ctid = $1`;
+      await client.query(sql, [item.ctid]);
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  }
+}
+
+// 新增函数
+export async function addTableData(client: any, schemaname: string = "public", tableName: string, list: any[]) {
+  if (!list.length) return;
+
+  await client.query('BEGIN');
+
+  try {
+    for (const item of list) {
+      const columns = Object.keys(item);
+      const values = Object.values(item);
+
+      const colNames = columns.join(', ');
+      const placeholders = columns.map((_, idx) => `$${idx + 1}`).join(', ');
+
+      const sql = `INSERT INTO ${schemaname}.${tableName} (${colNames}) VALUES (${placeholders})`;
+
+      await client.query(sql, values);
+    }
+
+    await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;

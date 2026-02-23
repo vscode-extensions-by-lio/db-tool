@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getTableData, updateTableData } from "../common/dbUtil/postgresUtil";
+import { addTableData, deleteTableData, getTableData, updateTableData } from "../common/dbUtil/postgresUtil";
 import { Client } from "pg";
 
 export async function openTableViewPanel(context: vscode.ExtensionContext, client: Client, schema: string, table: string) {
@@ -57,7 +57,9 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
         }
 
         if (message.command === "saveData") {
-            await updateTableData(client, schema, table, message.data);
+            await updateTableData(client, schema, table, message.data.modified);
+            await addTableData(client, schema, table, message.data.added);
+            await deleteTableData(client, schema, table, message.data.deleted);
 
             const rows = await getTableData(client, schema, table);
             panel.webview.postMessage({
