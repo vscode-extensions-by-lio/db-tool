@@ -2,7 +2,7 @@
   "name": "db-tool",
   "displayName": "db-tool",
   "description": "edit db by tables",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "hellolio",
   "homepage": "https://github.com/vscode-extensions-by-lio/db-tool",
   "bugs": {

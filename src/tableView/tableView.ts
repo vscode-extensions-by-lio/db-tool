@@ -45,13 +45,13 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
 
     panel.webview.onDidReceiveMessage(async (message) => {
         if (message.command === "webviewReady") {
-            const rows = await getTableData(client, schema, table);
+            const result = await getTableData(client, schema, table);
             panel.webview.postMessage({
                 command: "render",
                 data: {
                     tableName: table,
-                    headers: Object.keys(rows[0] || {}),
-                    rows: rows
+                    headers: result.fields.map(f => f.name),
+                    rows: result.rows
                 }
             });
         }
@@ -61,13 +61,13 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
             await addTableData(client, schema, table, message.data.added);
             await deleteTableData(client, schema, table, message.data.deleted);
 
-            const rows = await getTableData(client, schema, table);
+            const result = await getTableData(client, schema, table);
             panel.webview.postMessage({
                 command: "render",
                 data: {
                     tableName: table,
-                    headers: Object.keys(rows[0] || {}),
-                    rows: rows
+                    headers: result.fields.map(f => f.name),
+                    rows: result.rows
                 }
             });
             vscode.window.showInformationMessage("Update succeeded.");

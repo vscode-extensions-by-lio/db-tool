@@ -82,7 +82,7 @@ export async function getTableData(client: Client, schemaname: string = "public"
     FROM "${schemaname}"."${tableName}"
   `);
 
-  return result.rows;
+  return result;
 }
 
 export async function updateTableData(client: any, schemaname: string = "public", tableName: string, list: any[]) {
