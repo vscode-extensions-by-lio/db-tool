@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { ConnectionTreeProvider } from "./views/connectionTreeProvider";
 import { openCreateConnectionPanel } from './createConnectionView/createConnectionView';
 import { openTableViewPanel } from './tableView/tableView';
-import { closeConn, createConn } from './util/dbUtil/postgresUtil';
+import { closeConn, createConn } from './common/dbUtil/postgresUtil';
 import { Connection } from './dataType';
 
 // This method is called when your extension is activated

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { ConnectionTreeProvider } from "../views/connectionTreeProvider";
-import { getNonce } from "../util/utilFun";
-import { checkConn, createConn } from "../util/dbUtil/postgresUtil";
+import { getNonce } from "../common/utilFun";
+import { checkConn, createConn } from "../common/dbUtil/postgresUtil";
 import { Connection } from "../dataType";
 
 export async function openCreateConnectionPanel(context: vscode.ExtensionContext, treeProvider: ConnectionTreeProvider) {

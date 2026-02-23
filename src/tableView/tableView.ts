@@ -1,8 +1,7 @@
 import * as vscode from "vscode";
-import { ConnectionTreeProvider } from "../views/connectionTreeProvider";
-import { getTableData } from "../util/dbUtil/postgresUtil";
+import { getTableData } from "../common/dbUtil/postgresUtil";
 import { Client } from "pg";
-import { getNonce } from "../util/utilFun";
+import { getNonce } from "../common/utilFun";
 
 export async function openTableViewPanel(context: vscode.ExtensionContext, client: Client, schema: string, table: string) {
     const panel = vscode.window.createWebviewPanel(

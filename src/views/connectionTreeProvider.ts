@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { createConn, getPgTables, getSchema } from "../util/dbUtil/postgresUtil";
+import { createConn, getPgTables, getSchema } from "../common/dbUtil/postgresUtil";
 import { Connection } from "../dataType";
 import { Client } from "pg";
 
