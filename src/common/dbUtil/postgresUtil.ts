@@ -78,9 +78,49 @@ export async function getPgTables(client: Client, schemaname: string = "public")
 
 export async function getTableData(client: Client, schemaname: string = "public", tableName: string) {
   const result = await client.query(`
-    SELECT * 
+    SELECT *, ctid 
     FROM "${schemaname}"."${tableName}"
   `);
 
   return result.rows;
+}
+
+export async function updateTableData(client: any, schemaname: string = "public", tableName: string, list: any[]) {
+  if (!list.length) return;
+
+  // 获取列名
+  const allColumns = Object.keys(list[0]);
+
+  // 排除更新条件列
+  const updateColumns = allColumns.filter(col => col !== 'ctid');
+
+  await client.query('BEGIN');
+
+  try {
+    for (const item of list) {
+
+      const setClause = updateColumns
+        .map((col, index) => `${col} = $${index + 1}`)
+        .join(', ');
+
+      const values = updateColumns.map(col => item[col]);
+
+      // ctid 作为最后一个参数
+      values.push(item.ctid);
+
+      const sql = `
+        UPDATE ${tableName}
+        SET ${setClause}
+        WHERE ctid = $${values.length}
+      `;
+
+      await client.query(sql, values);
+    }
+
+    await client.query('COMMIT');
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  }
 }

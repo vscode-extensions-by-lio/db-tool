@@ -1,9 +1,6 @@
 import * as vscode from "vscode";
-import { getTableData } from "../common/dbUtil/postgresUtil";
+import { getTableData, updateTableData } from "../common/dbUtil/postgresUtil";
 import { Client } from "pg";
-import { getNonce } from "../common/utilFun";
-import * as path from 'path';
-
 
 export async function openTableViewPanel(context: vscode.ExtensionContext, client: Client, schema: string, table: string) {
     const panel = vscode.window.createWebviewPanel(
@@ -46,15 +43,32 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
 
     panel.webview.html = html;
 
-    panel.webview.onDidReceiveMessage(async (msg) => {
-        if (msg.command === "webviewReady") {
+    panel.webview.onDidReceiveMessage(async (message) => {
+        if (message.command === "webviewReady") {
             const rows = await getTableData(client, schema, table);
             panel.webview.postMessage({
                 command: "render",
-                tableName: table,
-                headers: Object.keys(rows[0] || {}),
-                rows: rows
+                data: {
+                    tableName: table,
+                    headers: Object.keys(rows[0] || {}),
+                    rows: rows
+                }
             });
+        }
+
+        if (message.command === "saveData") {
+            await updateTableData(client, schema, table, message.data);
+
+            const rows = await getTableData(client, schema, table);
+            panel.webview.postMessage({
+                command: "render",
+                data: {
+                    tableName: table,
+                    headers: Object.keys(rows[0] || {}),
+                    rows: rows
+                }
+            });
+            vscode.window.showInformationMessage("Update succeeded.");
         }
     });
 
