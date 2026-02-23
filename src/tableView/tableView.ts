@@ -21,6 +21,7 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
     const htmlUri = vscode.Uri.joinPath(
         mediaPath,
         "tableView",
+        "edit-html-like-excel",
         "tableView.html"
     );
 
