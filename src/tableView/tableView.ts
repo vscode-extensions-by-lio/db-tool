@@ -2,6 +2,8 @@ import * as vscode from "vscode";
 import { getTableData } from "../common/dbUtil/postgresUtil";
 import { Client } from "pg";
 import { getNonce } from "../common/utilFun";
+import * as path from 'path';
+
 
 export async function openTableViewPanel(context: vscode.ExtensionContext, client: Client, schema: string, table: string) {
     const panel = vscode.window.createWebviewPanel(
@@ -11,75 +13,36 @@ export async function openTableViewPanel(context: vscode.ExtensionContext, clien
         {
         enableScripts: true,
         localResourceRoots: [
-            vscode.Uri.joinPath(context.extensionUri, "media")
+            vscode.Uri.joinPath(context.extensionUri, "media", "tableView", "edit-html-like-excel", "dist")
         ]
         }
     );
 
-    const mediaPath = vscode.Uri.joinPath(context.extensionUri, "media");
+    const distPath = vscode.Uri.joinPath(context.extensionUri, "media", "tableView", "edit-html-like-excel", "dist");
 
     const htmlUri = vscode.Uri.joinPath(
-        mediaPath,
-        "tableView",
-        "edit-html-like-excel",
-        "tableView.html"
+        distPath,
+        "index.html"
     );
 
-    const cssUri = panel.webview.asWebviewUri(
-        vscode.Uri.joinPath(
-            mediaPath,
-            "tableView",
-            "tableView.css"
-        )
-    );
-
-    const scriptUri = panel.webview.asWebviewUri(
-        vscode.Uri.joinPath(
-            mediaPath,
-            "tableView",
-            "tableView.js"
-        )
-    );
-
-    const agGridJsUri = panel.webview.asWebviewUri(
-        vscode.Uri.joinPath(
-            mediaPath,
-            "tableView",
-            "ag-grid-community.min.js"
-        )
-    );
-
-    const agGridCssUri = panel.webview.asWebviewUri(
-        vscode.Uri.joinPath(
-            mediaPath,
-            "tableView",
-            "ag-theme-alpine.min.css"
-        )
-    );
-
-    const agThemeUri = panel.webview.asWebviewUri(
-        vscode.Uri.joinPath(
-            mediaPath,
-            "tableView",
-            "ag-theme-alpine.min.css"
-        )
-    );
 
     // 读取 html 文件
     const htmlBytes = await vscode.workspace.fs.readFile(htmlUri);
     let html = new TextDecoder("utf-8").decode(htmlBytes);
 
-    // 替换占位符
-    const nonce = getNonce();
-    html = html.replace(/{{styleUri}}/g, cssUri.toString());
-    html = html.replace(/{{scriptUri}}/g, scriptUri.toString());
-    
-    html = html.replace(/{{agGridCssUri}}/g, agGridCssUri.toString());
-    html = html.replace(/{{agThemeUri}}/g, agThemeUri.toString());
-    html = html.replace(/{{agGridJsUri}}/g, agGridJsUri.toString());
+      // 替换所有 src/href
+    html = html.replace(
+        /(src|href)="(.+?)"/g,
+        (match, attr, src) => {
+        if (src.startsWith('http')) {return match;};
 
-    html = html.replace(/{{nonce}}/g, nonce);
-    html = html.replace(/{{webview.cspSource}}/g, panel.webview.cspSource);
+        const resourcePath = vscode.Uri.joinPath(distPath, src);
+
+        const webviewUri = panel.webview.asWebviewUri(resourcePath);
+
+        return `${attr}="${webviewUri}"`;
+        }
+    );
 
     panel.webview.html = html;
 
