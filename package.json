@@ -89,7 +89,7 @@
       },
       {
         "command": "dbTool.refreshConnection",
-        "title": "Close Connection",
+        "title": "Refresh Connection",
         "icon": {
           "light": "resources/refresh.png",
           "dark": "resources/refresh.png"

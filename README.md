@@ -1,17 +1,31 @@
-# DBTool - VS Code PostgreSQL Explorer
+# DBTool - VS Code Database Explorer
 
-一个轻量级 PostgreSQL 可视化管理插件，在 VS Code 左侧栏显示数据库连接、schema 和表，并可在主窗口打开表格数据进行查看。
+Edit database data in a spreadsheet-like view directly within VS Code. Intuitive like Excel.
 
-Installation From VS Code Marketplace or manually:
-`code --install-extension excel-to-sql.vsix`
+![Demo](media/demo.gif)
 
-Development
-submod project:
+Currently supports PostgreSQL, with more databases coming soon.
+
+## Features
+
+- Connect to PostgreSQL databases
+- Browse schemas and tables
+- Edit data in a spreadsheet view
+- Execute queries
+
+## Installation
+
+VS Code Marketplace or manual install:
+`code --install-extension db-tool-0.1.1.vsix`
+
+## Development
+
+Submodule:
 ```cmd
 npm install
 npm run build
 ```
-main project
+Main project:
 ```cmd
 npm install
 npm run compile

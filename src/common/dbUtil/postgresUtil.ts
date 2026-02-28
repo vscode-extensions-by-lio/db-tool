@@ -85,6 +85,26 @@ export async function getTableData(client: Client, schemaname: string = "public"
   return result;
 }
 
+
+export async function getTableColType(client: Client, schemaname: string = "public", tableName: string) {
+  const result = await client.query(`
+    SELECT
+        a.attname AS column_name,
+        pg_catalog.format_type(a.atttypid, a.atttypmod) AS full_data_type,
+        case when (a.attnotnull) then 'required' else 'nullable' end as notnull
+    FROM pg_catalog.pg_attribute a
+    JOIN pg_catalog.pg_class c ON a.attrelid = c.oid
+    JOIN pg_catalog.pg_namespace n ON c.relnamespace = n.oid
+    WHERE c.relname = '${tableName}'
+      AND n.nspname = '${schemaname}'
+      AND a.attnum > 0
+      AND NOT a.attisdropped
+    ORDER BY a.attnum
+  `);
+
+  return result;
+}
+
 export async function updateTableData(client: any, schemaname: string = "public", tableName: string, list: any[]) {
   if (!list.length) return;
 
@@ -136,7 +156,6 @@ export async function deleteTableData(client: any, schemaname: string = "public"
       const sql = `DELETE FROM ${schemaname}.${tableName} WHERE ctid = $1`;
       await client.query(sql, [item.ctid]);
     }
-    await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -162,9 +181,17 @@ export async function addTableData(client: any, schemaname: string = "public", t
       await client.query(sql, values);
     }
 
-    await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
+  }
+}
+
+export async function commit(client: Client) {
+  try {
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
   }
 }
