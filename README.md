@@ -2,7 +2,7 @@
 
 Edit database data in a spreadsheet-like view directly within VS Code. Intuitive like Excel.
 
-![Demo](media/demo.gif)
+![Demo](resources/demo.gif)
 
 Currently supports PostgreSQL, with more databases coming soon.
 
